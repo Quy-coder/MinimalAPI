@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Nguyen Van A",
+    "email": "nguyenvana@example.com",
+    "age": 25
+  },
+  {
+    "id": 2,
+    "name": "Tran Thi B",
+    "email": "tranthib@example.com",
+    "age": 30
+  },
+  {
+    "id": 3,
+    "name": "Le Van C",
+    "email": "levanc@example.com",
+    "age": 28
+  },
+  {
+    "id": 4,
+    "name": "Pham Thi D",
+    "email": "phamthid@example.com",
+    "age": 22
+  }
+]
