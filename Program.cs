@@ -16,6 +16,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IUserService, UserService>();
 
+builder.Services.AddValidation();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(taskkill //F //PID 2632)",
+      "Bash(nohup dotnet run --urls \"http://localhost:5225\")",
+      "Bash(curl -s -o /tmp/user_port_resp2.json -w \"HTTP %{http_code}\\\\n\" -X POST http://localhost:5225/minimal/users -H \"Content-Type: application/json\" -d '{\"name\":\"\",\"email\":\"\",\"age\":1}')",
+      "Bash(taskkill //F //PID 31652)",
+      "Bash(taskkill //F //PID 24360)",
+      "Bash(curl -s -o /tmp/r1.json -w \"HTTP %{http_code}\\\\n\" -X POST http://localhost:5225/minimal/users -H \"Content-Type: application/json\" -d '{\"name\":\"\",\"email\":\"\",\"age\":1}')",
+      "Bash(curl -s -o /tmp/r2.json -w \"HTTP %{http_code}\\\\n\" -X POST http://localhost:5225/controller/users -H \"Content-Type: application/json\" -d '{\"name\":\"\",\"email\":\"\",\"age\":1}')",
+      "Bash(curl -s -o /tmp/r3.json -w \"HTTP %{http_code}\\\\n\" -X POST http://localhost:5225/minimal/users -H \"Content-Type: application/json\" -d '{\"name\":\"Valid\",\"email\":\"v@v.com\",\"age\":22}')",
+      "Bash(taskkill //F //PID 18080)",
+      "Bash(taskkill //F //PID 13084)",
+      "Bash(curl -s -o /tmp/f1.json -w \"HTTP %{http_code}\\\\n\" -X POST http://localhost:5225/minimal/users -H \"Content-Type: application/json\" -d '{\"name\":\"\",\"email\":\"\",\"age\":1}')",
+      "Bash(curl -s -o /tmp/f2.json -w \"HTTP %{http_code}\\\\n\" -X POST http://localhost:5225/controller/users -H \"Content-Type: application/json\" -d '{\"name\":\"\",\"email\":\"\",\"age\":1}')",
+      "Bash(curl -s -o /tmp/f3.json -w \"HTTP %{http_code}\\\\n\" -X POST http://localhost:5225/minimal/users -H \"Content-Type: application/json\" -d '{\"name\":\"Valid\",\"email\":\"v@v.com\",\"age\":22}')",
+      "Bash(curl -s -o /tmp/f4.json -w \"HTTP %{http_code}\\\\n\" -X POST http://localhost:5225/controller/users -H \"Content-Type: application/json\" -d '{\"name\":\"Valid\",\"email\":\"v@v.com\",\"age\":22}')"
+    ]
+  }
+}
