@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MinimalAPIs.Models;
 using MinimalAPIs.Services;
@@ -34,6 +35,10 @@ public class UsersController : ControllerBase
         });
     }
 
+    // Endpoint demo để trigger global exception handler.
+    [HttpGet("boom")]
+    public ActionResult Boom() => throw new InvalidOperationException("Demo exception from Controller");
+
     [HttpGet("{id:int}")]
     public ActionResult<User> GetById(int id)
     {
@@ -62,7 +67,9 @@ public class UsersController : ControllerBase
         return user is not null ? Ok(user) : NotFound();
     }
 
+    // Chỉ endpoint Delete yêu cầu auth, để so sánh trực tiếp với .RequireAuthorization() bên Minimal API.
     [HttpDelete("{id:int}")]
+    [Authorize]
     public IActionResult Delete(int id)
     {
         return _userService.Delete(id) ? NoContent() : NotFound();

@@ -1,6 +1,8 @@
-using System.Diagnostics;
-using System.Text.Json;
-using MinimalAPIs.Models;
+using Microsoft.AspNetCore.Authentication;
+using MinimalAPIs.Auth;
+using MinimalAPIs.Endpoints;
+using MinimalAPIs.ErrorHandling;
+using MinimalAPIs.Filters;
 using MinimalAPIs.Repositories;
 using MinimalAPIs.Services;
 using Scalar.AspNetCore;
@@ -9,7 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<LoggingActionFilter>();
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -17,6 +22,14 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IUserService, UserService>();
 
 builder.Services.AddValidation();
+
+builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+builder.Services
+    .AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
+    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, null);
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -27,89 +40,43 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseExceptionHandler();
+
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-var mockFilePath = Path.Combine(app.Environment.ContentRootPath, "userListMock.json");
-var users = JsonSerializer.Deserialize<List<User>>(File.ReadAllText(mockFilePath), jsonOptions) ?? [];
-var nextId = users.Count > 0 ? users.Max(u => u.Id) + 1 : 1;
+var minimal = app.MapGroup("/minimal/users")
+    .AddEndpointFilter<LoggingEndpointFilter>();
 
-var minimal = app.MapGroup("/minimal/users");
-
-// Các API bên dưới query trực tiếp lên list in-memory, không qua Service/Repository.
-minimal.MapGet("", () => Results.Ok(users))
+minimal.MapGet("", UserEndpoints.GetAll)
     .WithName("GetUsers");
 
-minimal.MapGet("/{id:int}", (int id) =>
-{
-    var user = users.FirstOrDefault(u => u.Id == id);
-    return user is not null ? Results.Ok(user) : Results.NotFound();
-})
+minimal.MapGet("/count", UserEndpoints.Count)
+    .WithName("CountUsers");
+
+// Endpoint demo để trigger global exception handler.
+minimal.MapGet("/boom", UserEndpoints.Boom)
+    .WithName("BoomMinimal");
+
+minimal.MapGet("/{id:int}", UserEndpoints.GetById)
     .WithName("GetUserById");
 
-minimal.MapPost("", (UserCreateDto dto) =>
-{
-    var user = new User(nextId++, dto.Name, dto.Email, dto.Age);
-    users.Add(user);
-    return Results.Created($"/minimal/users/{user.Id}", user);
-})
+minimal.MapPost("", UserEndpoints.Create)
     .WithName("CreateUser");
 
-minimal.MapPut("/{id:int}", (int id, UserCreateDto dto) =>
-{
-    var index = users.FindIndex(u => u.Id == id);
-    if (index == -1) return Results.NotFound();
-
-    users[index] = new User(id, dto.Name, dto.Email, dto.Age);
-    return Results.Ok(users[index]);
-})
+minimal.MapPut("/{id:int}", UserEndpoints.Update)
     .WithName("UpdateUser");
 
-minimal.MapPatch("/{id:int}", (int id, UserPatchDto dto) =>
-{
-    var index = users.FindIndex(u => u.Id == id);
-    if (index == -1) return Results.NotFound();
-
-    var current = users[index];
-    var updated = current with
-    {
-        Name = dto.Name ?? current.Name,
-        Email = dto.Email ?? current.Email,
-        Age = dto.Age ?? current.Age
-    };
-    users[index] = updated;
-    return Results.Ok(updated);
-})
+minimal.MapPatch("/{id:int}", UserEndpoints.Patch)
     .WithName("PatchUser");
 
-minimal.MapDelete("/{id:int}", (int id) =>
-{
-    var index = users.FindIndex(u => u.Id == id);
-    if (index == -1) return Results.NotFound();
-
-    users.RemoveAt(index);
-    return Results.NoContent();
-})
-    .WithName("DeleteUser");
-
-// API demo dùng DI qua tầng Service/Repository.
-minimal.MapGet("/count", (int age, IUserService userService) =>
-{
-    var stopwatch = Stopwatch.StartNew();
-    var count = userService.CountByAge(age);
-    stopwatch.Stop();
-
-    return Results.Ok(new
-    {
-        age,
-        totalCount = count,
-        elapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds
-    });
-})
-    .WithName("CountUsers");
+// Chỉ endpoint Delete yêu cầu auth, để so sánh trực tiếp với [Authorize] bên Controller.
+minimal.MapDelete("/{id:int}", UserEndpoints.Delete)
+    .WithName("DeleteUser")
+    .RequireAuthorization();
 
 app.Run();
