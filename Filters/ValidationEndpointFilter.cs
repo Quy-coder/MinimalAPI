@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace MinimalAPIs.Filters;
 
-// Minimal API cách validate bằng FluentValidation: generic IEndpointFilter, resolve IValidator<T>
-// qua DI, chạy trước khi vào handler. Áp dụng qua .AddEndpointFilter<ValidationEndpointFilter<T>>().
-// Tách rời khỏi handler nên test được độc lập, không đụng vào logic nghiệp vụ (xem test tương ứng).
+// Minimal API way to validate with FluentValidation: generic IEndpointFilter, resolves IValidator<T>
+// via DI, runs before the handler. Applied via .AddEndpointFilter<ValidationEndpointFilter<T>>().
+// Decoupled from the handler so it can be tested independently, without touching business logic (see corresponding test).
 public class ValidationEndpointFilter<T> : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)

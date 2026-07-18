@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MinimalAPIs.Models;
 
-// Gom nhiều nguồn tham số (query string + header) vào 1 object, thay vì khai báo từng
-// tham số rời rạc trên chữ ký handler/action.
-// - Minimal API: bind bằng [AsParameters] ngay tại tham số handler (xem UserEndpoints.Search).
-// - Controller: không cần attribute wrapper, chỉ cần [FromQuery] trên tham số action;
-//   MVC tự đọc [FromQuery]/[FromHeader] khai báo trên từng property bên trong (xem UsersController.Search).
-// [FromQuery]/[FromHeader] ở đây dùng chung được cho cả 2 style vì cùng là attribute của
-// Microsoft.AspNetCore.Mvc, được cả Minimal API lẫn MVC nhận diện qua interface binding-source.
+// Groups multiple parameter sources (query string + header) into 1 object, instead of declaring
+// each parameter separately on the handler/action signature.
+// - Minimal API: bind via [AsParameters] directly on the handler parameter (see UserEndpoints.Search).
+// - Controller: no attribute wrapper needed, just [FromQuery] on the action parameter;
+//   MVC reads the [FromQuery]/[FromHeader] declared on each property inside it automatically (see UsersController.Search).
+// [FromQuery]/[FromHeader] here are shared between both styles because they're the same
+// Microsoft.AspNetCore.Mvc attributes, recognized by both Minimal API and MVC via the binding-source interface.
 public class UserQueryParameters
 {
     [FromQuery(Name = "page")]

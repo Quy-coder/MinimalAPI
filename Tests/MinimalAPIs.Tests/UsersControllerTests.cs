@@ -8,9 +8,9 @@ using Xunit;
 
 namespace MinimalAPIs.Tests;
 
-// Controller là class -> test bằng cách new trực tiếp + mock constructor dependency.
-// Không cần host app, không cần dựng ControllerContext cho các case dưới đây.
-// UserPatchDtoValidator không có dependency nên dùng instance thật thay vì mock.
+// Controller is a class -> tested by newing it up directly + mocking constructor dependencies.
+// No host app needed, no ControllerContext to build for the cases below.
+// UserPatchDtoValidator has no dependencies, so a real instance is used instead of a mock.
 public class UsersControllerTests
 {
     private static UsersController CreateController(Mock<IUserService> mockService) =>
@@ -81,7 +81,7 @@ public class UsersControllerTests
         Assert.IsType<NotFoundResult>(result);
     }
 
-    // FluentValidation qua DI, gọi thủ công trong action: dto rỗng -> ValidationProblem, service không được gọi.
+    // FluentValidation via DI, called manually in the action: empty dto -> ValidationProblem, service not called.
     [Fact]
     public async Task Patch_ReturnsValidationProblem_WhenAllFieldsNull()
     {
@@ -109,7 +109,7 @@ public class UsersControllerTests
         Assert.Equal(updated, okResult.Value);
     }
 
-    // [AsParameters] bên Minimal API tương ứng với [FromQuery] trên UserQueryParameters bên Controller.
+    // [AsParameters] on the Minimal API side corresponds to [FromQuery] on UserQueryParameters on the Controller side.
     [Fact]
     public void Search_ReturnsOk_WithPagedItems()
     {
@@ -123,7 +123,7 @@ public class UsersControllerTests
         Assert.IsType<OkObjectResult>(result);
     }
 
-    // API Versioning: action v2.0 trả về shape khác so với GetAll (v1.0).
+    // API Versioning: the v2.0 action returns a different shape than GetAll (v1.0).
     [Fact]
     public void GetAllV2_ReturnsOk()
     {

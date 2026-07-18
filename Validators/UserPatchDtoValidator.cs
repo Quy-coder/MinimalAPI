@@ -3,10 +3,10 @@ using MinimalAPIs.Models;
 
 namespace MinimalAPIs.Validators;
 
-// UserCreateDto validate bằng DataAnnotations + AddValidation() (xem Program.cs, Models/UserDtos.cs).
-// UserPatchDto validate bằng FluentValidation để so sánh 2 cách "gắn" validator vào request pipeline:
-// - Minimal API: bọc validator trong IEndpointFilter (xem Filters/ValidationEndpointFilter.cs).
-// - Controller: inject IValidator<T> qua DI, gọi thủ công trong action (xem UsersController.Patch).
+// UserCreateDto is validated with DataAnnotations + AddValidation() (see Program.cs, Models/UserDtos.cs).
+// UserPatchDto is validated with FluentValidation to compare 2 ways of "attaching" a validator to the request pipeline:
+// - Minimal API: wrap the validator in an IEndpointFilter (see Filters/ValidationEndpointFilter.cs).
+// - Controller: inject IValidator<T> via DI, call it manually in the action (see UsersController.Patch).
 public class UserPatchDtoValidator : AbstractValidator<UserPatchDto>
 {
     public UserPatchDtoValidator()

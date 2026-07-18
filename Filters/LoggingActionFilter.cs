@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace MinimalAPIs.Filters;
 
-// Controller cách viết filter: implement IAsyncActionFilter, gắn qua options.Filters.Add<T>() hoặc [ServiceFilter].
+// Controller way to write a filter: implement IAsyncActionFilter, attach via options.Filters.Add<T>() or [ServiceFilter].
 public class LoggingActionFilter : IAsyncActionFilter
 {
     private readonly ILogger<LoggingActionFilter> _logger;

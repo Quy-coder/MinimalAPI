@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MinimalAPIs.ErrorHandling;
 
-// Xử lý exception tập trung, dùng chung cho cả Minimal API lẫn Controller.
+// Centralized exception handling, shared by both Minimal API and Controller.
 public class ApiExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ApiExceptionHandler> _logger;

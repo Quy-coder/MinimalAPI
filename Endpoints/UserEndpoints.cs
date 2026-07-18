@@ -6,19 +6,19 @@ using MinimalAPIs.Services;
 
 namespace MinimalAPIs.Endpoints;
 
-// Handler tách ra static method (thay vì lambda inline trong Program.cs) để unit-test được
-// như một hàm bình thường, không cần host app hay dựng ControllerContext.
+// Handlers are extracted into static methods (instead of inline lambdas in Program.cs) so they can be
+// unit-tested like ordinary functions, without needing a host app or building a ControllerContext.
 //
-// Route mapping cũng gom về đây thành 1 extension method (MapUserEndpoints), thay vì để
-// từng .MapGet/.MapPost rải trong Program.cs. Khi thêm feature mới (Order, Product,...) chỉ
-// cần thêm 1 class OrderEndpoints tương tự + 1 dòng app.MapOrderEndpoints() trong Program.cs,
-// Program.cs không phình to theo số lượng endpoint.
+// Route mapping is also grouped here into 1 extension method (MapUserEndpoints), instead of leaving
+// individual .MapGet/.MapPost calls scattered in Program.cs. Adding a new feature (Order, Product,...)
+// only requires adding a similar OrderEndpoints class + 1 app.MapOrderEndpoints() line in Program.cs,
+// so Program.cs doesn't bloat as the number of endpoints grows.
 public static class UserEndpoints
 {
     public static void MapUserEndpoints(this IEndpointRouteBuilder app)
     {
-        // Version set riêng cho nhóm Users: khai báo version nào tồn tại, endpoint không gọi
-        // .MapToApiVersion(...) mặc định phục vụ mọi version trong set (giống Controller).
+        // Dedicated version set for the Users group: declares which versions exist; an endpoint that doesn't call
+        // .MapToApiVersion(...) serves every version in the set by default (same as Controller).
         var apiVersionSet = app.NewApiVersionSet("Users (Minimal)")
             .HasApiVersion(new ApiVersion(1.0))
             .HasApiVersion(new ApiVersion(2.0))
@@ -33,7 +33,7 @@ public static class UserEndpoints
             .WithName("GetUsers")
             .MapToApiVersion(1.0);
 
-        // v2.0 của GetAll, cùng route/verb với bản v1 -> bắt buộc .MapToApiVersion để phân biệt.
+        // v2.0 of GetAll, same route/verb as the v1 version -> .MapToApiVersion is required to distinguish them.
         group.MapGet("", GetAllV2)
             .WithName("GetUsersV2")
             .MapToApiVersion(2.0);
@@ -44,7 +44,7 @@ public static class UserEndpoints
         group.MapGet("/count", Count)
             .WithName("CountUsers");
 
-        // Endpoint demo để trigger global exception handler.
+        // Demo endpoint to trigger the global exception handler.
         group.MapGet("/boom", Boom)
             .WithName("BoomMinimal");
 
@@ -57,12 +57,12 @@ public static class UserEndpoints
         group.MapPut("/{id:int}", Update)
             .WithName("UpdateUser");
 
-        // FluentValidation qua IEndpointFilter: validate UserPatchDto trước khi vào handler.
+        // FluentValidation via IEndpointFilter: validates UserPatchDto before entering the handler.
         group.MapPatch("/{id:int}", Patch)
             .WithName("PatchUser")
             .AddEndpointFilter<ValidationEndpointFilter<UserPatchDto>>();
 
-        // Chỉ endpoint Delete yêu cầu auth, để so sánh trực tiếp với [Authorize] bên Controller.
+        // Only the Delete endpoint requires auth, to compare directly with [Authorize] on the Controller side.
         group.MapDelete("/{id:int}", Delete)
             .WithName("DeleteUser")
             .RequireAuthorization();
@@ -71,8 +71,8 @@ public static class UserEndpoints
     public static IResult GetAll(IUserService userService) =>
         TypedResults.Ok(userService.GetAll());
 
-    // v2.0 của GetAll: đổi shape response để minh hoạ API Versioning (Asp.Versioning.Http).
-    // Cùng route "" nhưng khác version -> map bằng .MapToApiVersion(2) trong Program.cs.
+    // v2.0 of GetAll: changes the response shape to demonstrate API Versioning (Asp.Versioning.Http).
+    // Same route "" but a different version -> mapped via .MapToApiVersion(2) in Program.cs.
     public static IResult GetAllV2(IUserService userService) =>
         TypedResults.Ok(new
         {
@@ -80,7 +80,7 @@ public static class UserEndpoints
             items = userService.GetAll()
         });
 
-    // Gom query (page, pageSize) + header (X-Client-Id) vào 1 object bind bằng [AsParameters].
+    // Groups query (page, pageSize) + header (X-Client-Id) into 1 object bound via [AsParameters].
     public static IResult Search([AsParameters] UserQueryParameters query, IUserService userService)
     {
         var (items, total) = userService.Search(query.Page, query.PageSize);

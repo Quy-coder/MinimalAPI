@@ -27,15 +27,15 @@ public class UsersController : ControllerBase
     [MapToApiVersion(1.0)]
     public ActionResult<List<User>> GetAll() => Ok(_userService.GetAll());
 
-    // v2.0 của GetAll, cùng route/verb nhưng khác version -> [MapToApiVersion] để phân biệt.
-    // Action khác không đánh version (Count, GetById, Create,...) mặc định phục vụ mọi version
-    // khai báo trên controller ([ApiVersion(1.0)] + [ApiVersion(2.0)]).
+    // v2.0 of GetAll, same route/verb but a different version -> [MapToApiVersion] to distinguish them.
+    // Other actions without a version attribute (Count, GetById, Create,...) serve every version by
+    // default declared on the controller ([ApiVersion(1.0)] + [ApiVersion(2.0)]).
     [HttpGet]
     [MapToApiVersion(2.0)]
     public ActionResult GetAllV2() => Ok(new { apiVersion = "2.0", items = _userService.GetAll() });
 
-    // Không cần [AsParameters]: MVC tự đọc [FromQuery]/[FromHeader] khai báo trên từng
-    // property của UserQueryParameters khi tham số action được đánh [FromQuery].
+    // No [AsParameters] needed: MVC automatically reads the [FromQuery]/[FromHeader] declared on each
+    // property of UserQueryParameters when the action parameter is marked [FromQuery].
     [HttpGet("search")]
     public ActionResult Search([FromQuery] UserQueryParameters query)
     {
@@ -58,7 +58,7 @@ public class UsersController : ControllerBase
         });
     }
 
-    // Endpoint demo để trigger global exception handler.
+    // Demo endpoint to trigger the global exception handler.
     [HttpGet("boom")]
     public ActionResult Boom() => throw new InvalidOperationException("Demo exception from Controller");
 
@@ -83,9 +83,9 @@ public class UsersController : ControllerBase
         return user is not null ? Ok(user) : NotFound();
     }
 
-    // Controller cách validate bằng FluentValidation: inject IValidator<T> qua DI, gọi thủ công
-    // trong action (khác với UsersController.GetAll/Create dùng [ApiController] + DataAnnotations
-    // tự động qua ModelState). So sánh với Minimal API dùng ValidationEndpointFilter<T>.
+    // Controller way to validate with FluentValidation: inject IValidator<T> via DI, call it manually
+    // in the action (unlike UsersController.GetAll/Create which use [ApiController] + DataAnnotations
+    // automatically via ModelState). Compare with Minimal API using ValidationEndpointFilter<T>.
     [HttpPatch("{id:int}")]
     public async Task<ActionResult<User>> Patch(int id, UserPatchDto dto)
     {
@@ -99,7 +99,7 @@ public class UsersController : ControllerBase
         return user is not null ? Ok(user) : NotFound();
     }
 
-    // Chỉ endpoint Delete yêu cầu auth, để so sánh trực tiếp với .RequireAuthorization() bên Minimal API.
+    // Only the Delete endpoint requires auth, to compare directly with .RequireAuthorization() on the Minimal API side.
     [HttpDelete("{id:int}")]
     [Authorize]
     public IActionResult Delete(int id)

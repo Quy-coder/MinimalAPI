@@ -25,10 +25,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IUserService, UserService>();
 
-// UserCreateDto: validate bằng DataAnnotations, tự chạy qua AddValidation() (native .NET, cả 2 style).
+// UserCreateDto: validated with DataAnnotations, runs automatically via AddValidation() (native .NET, both styles).
 builder.Services.AddValidation();
-// UserPatchDto: validate bằng FluentValidation qua DI (đăng ký IValidator<T>), xem UsersController.Patch
-// (gọi thủ công) và ValidationEndpointFilter<T> (Minimal API, xem Program.cs bên dưới).
+// UserPatchDto: validated with FluentValidation via DI (registers IValidator<T>), see UsersController.Patch
+// (called manually) and ValidationEndpointFilter<T> (Minimal API, see Program.cs below).
 builder.Services.AddScoped<IValidator<UserPatchDto>, UserPatchDtoValidator>();
 
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
@@ -39,9 +39,9 @@ builder.Services
     .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, null);
 builder.Services.AddAuthorization();
 
-// API Versioning (package Asp.Versioning.Http + Asp.Versioning.Mvc), dùng chung config cho cả 2 style:
+// API Versioning (package Asp.Versioning.Http + Asp.Versioning.Mvc), shared config for both styles:
 // - Minimal API: app.NewApiVersionSet() + .WithApiVersionSet()/.MapToApiVersion() (Asp.Versioning.Http).
-// - Controller: [ApiVersion]/[MapToApiVersion] attribute, bật qua .AddMvc() (Asp.Versioning.Mvc).
+// - Controller: [ApiVersion]/[MapToApiVersion] attribute, enabled via .AddMvc() (Asp.Versioning.Mvc).
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1.0);
@@ -71,9 +71,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Toàn bộ route mapping của feature "Users" nằm trong Endpoints/UserEndpoints.cs
-// (MapUserEndpoints). Program.cs chỉ còn 1 dòng gọi ra, thêm feature mới (Order, Product,...)
-// không làm file này phình to.
+// All route mapping for the "Users" feature lives in Endpoints/UserEndpoints.cs
+// (MapUserEndpoints). Program.cs only has 1 line calling out to it; adding a new feature (Order, Product,...)
+// doesn't bloat this file.
 app.MapUserEndpoints();
 
 app.Run();

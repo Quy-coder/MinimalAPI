@@ -11,9 +11,9 @@ using Xunit;
 
 namespace MinimalAPIs.Tests;
 
-// Handler Minimal API là static method (tách ra từ Program.cs) -> test bằng cách gọi thẳng
-// hàm với tham số giả, không cần host app, không cần dựng ControllerContext/HttpContext.
-// Case y hệt UsersControllerTests để so sánh trực tiếp 2 style.
+// Minimal API handlers are static methods (extracted from Program.cs) -> tested by calling the
+// function directly with fake parameters, no host app, no ControllerContext/HttpContext to build.
+// Cases mirror UsersControllerTests exactly to compare the 2 styles directly.
 public class UserEndpointsTests
 {
     [Fact]
@@ -75,8 +75,8 @@ public class UserEndpointsTests
         Assert.IsType<NotFound>(result);
     }
 
-    // [AsParameters] bind UserQueryParameters (page/pageSize từ query, ClientId từ header) -> gọi thẳng
-    // handler với object đã dựng sẵn, không cần host app hay giả lập HTTP request.
+    // [AsParameters] binds UserQueryParameters (page/pageSize from query, ClientId from header) -> call the
+    // handler directly with a pre-built object, no host app or simulated HTTP request needed.
     [Fact]
     public void Search_ReturnsOk_WithPagedItems()
     {
@@ -90,7 +90,7 @@ public class UserEndpointsTests
         Assert.Equal(StatusCodes.Status200OK, ((IStatusCodeHttpResult)result).StatusCode);
     }
 
-    // API Versioning: handler v2.0 tồn tại song song với GetAll (v1.0), khác shape response.
+    // API Versioning: the v2.0 handler exists alongside GetAll (v1.0), with a different response shape.
     [Fact]
     public void GetAllV2_ReturnsOk()
     {
@@ -104,8 +104,8 @@ public class UserEndpointsTests
     }
 }
 
-// ValidationEndpointFilter<T> là 1 class thường (IEndpointFilter) -> test được độc lập bằng cách
-// tự dựng EndpointFilterInvocationContext, không cần host app hay TestServer.
+// ValidationEndpointFilter<T> is a plain class (IEndpointFilter) -> can be tested independently by
+// building an EndpointFilterInvocationContext directly, no host app or TestServer needed.
 public class ValidationEndpointFilterTests
 {
     private static EndpointFilterInvocationContext CreateContext(UserPatchDto dto)

@@ -5,8 +5,8 @@ using Microsoft.Extensions.Options;
 
 namespace MinimalAPIs.Auth;
 
-// Auth scheme đơn giản cho demo: so khớp header X-Api-Key với giá trị cấu hình trong appsettings.
-// Áp dụng giống nhau cho cả 2 style, chỉ khác cách khai báo: [Authorize] vs .RequireAuthorization().
+// Simple auth scheme for the demo: matches the X-Api-Key header against the value configured in appsettings.
+// Applied the same way for both styles, only the declaration differs: [Authorize] vs .RequireAuthorization().
 public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     public const string SchemeName = "ApiKey";

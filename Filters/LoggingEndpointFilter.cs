@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace MinimalAPIs.Filters;
 
-// Minimal API cách viết filter: implement IEndpointFilter, gắn qua .AddEndpointFilter<T>().
+// Minimal API way to write a filter: implement IEndpointFilter, attach via .AddEndpointFilter<T>().
 public class LoggingEndpointFilter : IEndpointFilter
 {
     private readonly ILogger<LoggingEndpointFilter> _logger;
