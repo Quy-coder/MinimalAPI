@@ -71,54 +71,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Version set dùng chung cho cả group: khai báo version nào tồn tại, endpoint không gọi
-// .MapToApiVersion(...) mặc định phục vụ mọi version trong set (giống Controller).
-var apiVersionSet = app.NewApiVersionSet("Users (Minimal)")
-    .HasApiVersion(new ApiVersion(1.0))
-    .HasApiVersion(new ApiVersion(2.0))
-    .ReportApiVersions()
-    .Build();
-
-var minimal = app.MapGroup("/minimal/v{version:apiVersion}/users")
-    .WithApiVersionSet(apiVersionSet)
-    .AddEndpointFilter<LoggingEndpointFilter>();
-
-minimal.MapGet("", UserEndpoints.GetAll)
-    .WithName("GetUsers")
-    .MapToApiVersion(1.0);
-
-// v2.0 của GetAll, cùng route/verb với bản v1 -> bắt buộc .MapToApiVersion để phân biệt.
-minimal.MapGet("", UserEndpoints.GetAllV2)
-    .WithName("GetUsersV2")
-    .MapToApiVersion(2.0);
-
-minimal.MapGet("/search", UserEndpoints.Search)
-    .WithName("SearchUsers");
-
-minimal.MapGet("/count", UserEndpoints.Count)
-    .WithName("CountUsers");
-
-// Endpoint demo để trigger global exception handler.
-minimal.MapGet("/boom", UserEndpoints.Boom)
-    .WithName("BoomMinimal");
-
-minimal.MapGet("/{id:int}", UserEndpoints.GetById)
-    .WithName("GetUserById");
-
-minimal.MapPost("", UserEndpoints.Create)
-    .WithName("CreateUser");
-
-minimal.MapPut("/{id:int}", UserEndpoints.Update)
-    .WithName("UpdateUser");
-
-// FluentValidation qua IEndpointFilter: validate UserPatchDto trước khi vào handler.
-minimal.MapPatch("/{id:int}", UserEndpoints.Patch)
-    .WithName("PatchUser")
-    .AddEndpointFilter<ValidationEndpointFilter<UserPatchDto>>();
-
-// Chỉ endpoint Delete yêu cầu auth, để so sánh trực tiếp với [Authorize] bên Controller.
-minimal.MapDelete("/{id:int}", UserEndpoints.Delete)
-    .WithName("DeleteUser")
-    .RequireAuthorization();
+// Toàn bộ route mapping của feature "Users" nằm trong Endpoints/UserEndpoints.cs
+// (MapUserEndpoints). Program.cs chỉ còn 1 dòng gọi ra, thêm feature mới (Order, Product,...)
+// không làm file này phình to.
+app.MapUserEndpoints();
 
 app.Run();
