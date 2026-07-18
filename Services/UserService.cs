@@ -39,4 +39,6 @@ public class UserService : IUserService
     public bool Delete(int id) => _repository.Delete(id);
 
     public int CountByAge(int age) => _repository.CountByAge(age);
+
+    public (List<User> Items, int Total) Search(int page, int pageSize) => _repository.Search(page, pageSize);
 }

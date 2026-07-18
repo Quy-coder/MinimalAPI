@@ -10,4 +10,5 @@ public interface IUserRepository
     User? Update(int id, User user);
     bool Delete(int id);
     int CountByAge(int age);
+    (List<User> Items, int Total) Search(int page, int pageSize);
 }

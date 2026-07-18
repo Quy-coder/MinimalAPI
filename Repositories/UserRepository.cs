@@ -54,4 +54,11 @@ public class UserRepository : IUserRepository
         var all = GetAll();
         return all.Count(u => u.Age == age);
     }
+
+    public (List<User> Items, int Total) Search(int page, int pageSize)
+    {
+        var all = GetAll();
+        var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        return (items, all.Count);
+    }
 }

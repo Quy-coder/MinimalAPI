@@ -11,4 +11,5 @@ public interface IUserService
     User? Patch(int id, UserPatchDto dto);
     bool Delete(int id);
     int CountByAge(int age);
+    (List<User> Items, int Total) Search(int page, int pageSize);
 }

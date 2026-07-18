@@ -11,6 +11,29 @@ public static class UserEndpoints
     public static IResult GetAll(IUserService userService) =>
         TypedResults.Ok(userService.GetAll());
 
+    // v2.0 của GetAll: đổi shape response để minh hoạ API Versioning (Asp.Versioning.Http).
+    // Cùng route "" nhưng khác version -> map bằng .MapToApiVersion(2) trong Program.cs.
+    public static IResult GetAllV2(IUserService userService) =>
+        TypedResults.Ok(new
+        {
+            apiVersion = "2.0",
+            items = userService.GetAll()
+        });
+
+    // Gom query (page, pageSize) + header (X-Client-Id) vào 1 object bind bằng [AsParameters].
+    public static IResult Search([AsParameters] UserQueryParameters query, IUserService userService)
+    {
+        var (items, total) = userService.Search(query.Page, query.PageSize);
+        return TypedResults.Ok(new
+        {
+            query.Page,
+            query.PageSize,
+            query.ClientId,
+            total,
+            items
+        });
+    }
+
     public static IResult GetById(int id, IUserService userService)
     {
         var user = userService.GetById(id);
